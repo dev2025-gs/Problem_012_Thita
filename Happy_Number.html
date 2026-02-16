@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Container With Most Water – Step Visualizer</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fa;
+        padding: 20px;
+      }
+      h1 {
+        margin-bottom: 5px;
+      }
+      input {
+        width: 400px;
+        padding: 8px;
+        font-size: 16px;
+      }
+      button {
+        padding: 8px 14px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 8px;
+      }
+      #chart {
+        display: flex;
+        align-items: flex-end;
+        height: 300px;
+        margin-top: 30px;
+        border-left: 2px solid #333;
+        border-bottom: 2px solid #333;
+        padding: 10px;
+        gap: 6px;
+      }
+      .bar {
+        width: 30px;
+        background: steelblue;
+        position: relative;
+      }
+      .bar.left {
+        background: orange;
+      }
+      .bar.right {
+        background: crimson;
+      }
+      .bar span {
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 12px;
+      }
+      #water {
+        position: absolute;
+        background: rgba(0, 150, 255, 0.3);
+        pointer-events: none;
+      }
+      #info {
+        margin-top: 20px;
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Happy Number – Step Animation</h1>
+    <p>Enter a number:</p>
+    <input id="input" value="1111111" />
+    <button onclick="start()">Start</button>
+    <button onclick="step()" id="stepBtn" disabled>Step</button>
+    <div id="chartWrapper" style="position: relative">
+      <div id="chart"></div>
+    </div>
+    <div id="info"></div>
+    <script>
+      let steps = [], currentStep = 0, finished = false;
+      function getHappySteps(n) {
+        let arr = [n];
+        let result = Array.from(String(arr[0]), Number);
+        let n_len = result.length;
+        let stepList = [];
+        let result_2 = 0;
+        let i = 0;
+        while (i < 10) {
+          let digits = [...result];
+          result_2 = digits.reduce((sum, d) => sum + d * d, 0);
+          stepList.push({
+            step: i + 1,
+            digits: digits,
+            sumSquares: result_2,
+            isHappy: result_2 === 1
+          });
+          if (result_2 === 1) break;
+          result = Array.from(String(result_2), Number);
+          n_len = result.length;
+          i++;
+        }
+        return stepList;
+      }
+      function start() {
+        let n = parseInt(document.getElementById("input").value.trim());
+        if (isNaN(n) || n <= 0) {
+          alert("Enter a positive integer");
+          return;
+        }
+        steps = getHappySteps(n);
+        currentStep = 0;
+        finished = false;
+        document.getElementById("stepBtn").disabled = false;
+        draw();
+        document.getElementById("info").innerHTML = '';
+      }
+      function step() {
+        if (finished) return;
+        currentStep++;
+        if (currentStep >= steps.length) {
+          finished = true;
+          document.getElementById("stepBtn").disabled = true;
+        }
+        draw();
+      }
+      function draw() {
+        const chart = document.getElementById("chart");
+        chart.innerHTML = "";
+        if (steps.length === 0) return;
+        const s = steps[Math.min(currentStep, steps.length - 1)];
+        s.digits.forEach((d, i) => {
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.height = (d * 25 + 20) + "px";
+          bar.style.background = s.isHappy ? "limegreen" : "steelblue";
+          const label = document.createElement("span");
+          label.textContent = d;
+          bar.appendChild(label);
+          chart.appendChild(bar);
+        });
+        document.getElementById("info").innerHTML = `
+          <strong>Step ${s.step}</strong><br>
+          Digits: ${s.digits.join(', ')}<br>
+          Sum of squares: ${s.sumSquares}<br>
+          ${s.isHappy ? '<span style="color:green">✅ Happy Number!</span>' : ''}
+        `;
+        if (finished && !s.isHappy) {
+          document.getElementById("info").innerHTML += '<br><span style="color:red">❌ Not a Happy Number!</span>';
+        }
+      }
+    </script>
+  </body>
+</html>
